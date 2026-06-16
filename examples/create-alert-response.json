@@ -1,0 +1,13 @@
+{
+"id": "alert_98765",
+"sensorId": "sensor_12345",
+"name": "High temperature alert",
+"status": "enabled",
+"condition": {
+"field": "temperatureF",
+"operator": "greater_than",
+"value": 80
+},
+"notificationEmail": "facilities@example.com",
+"createdAt": "2026-06-16T14:30:00Z"
+}
