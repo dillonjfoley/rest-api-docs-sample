@@ -1,0 +1,959 @@
+openapi: 3.1.0
+info:
+title: SensorHub Cloud API
+version: 1.0.0
+description: >
+The SensorHub Cloud API lets developers list sensors, get sensor readings,
+check gateway status, and manage alert rules.
+
+This API specification is part of a fictional technical writing portfolio sample.
+
+servers:
+
+url: https://api.sensorhub.example.com/v1
+description: Production server
+security:
+bearerAuth: []
+
+tags:
+
+name: Sensors
+description: View sensors and sensor details.
+name: Readings
+description: View sensor reading data.
+name: Gateways
+description: Check gateway status.
+name: Alerts
+description: Create, update, list, and delete alert rules.
+
+paths:
+/sensors:
+get:
+tags:
+- Sensors
+summary: List sensors
+description: Returns a list of sensors in the account.
+operationId: listSensors
+parameters:
+- name: status
+in: query
+required: false
+description: Filters sensors by status.
+schema:
+type: string
+enum:
+- online
+- offline
+- inactive
+- name: type
+in: query
+required: false
+description: Filters sensors by type.
+schema:
+type: string
+enum:
+- temperature
+- humidity
+- contact
+- motion
+- name: limit
+in: query
+required: false
+description: Number of results to return. Maximum is 100.
+schema:
+type: integer
+default: 25
+minimum: 1
+maximum: 100
+- name: cursor
+in: query
+required: false
+description: Cursor used to request the next page of results.
+schema:
+type: string
+responses:
+"200":
+description: A list of sensors.
+content:
+application/json:
+schema:
+$ref: "#/components/schemas/SensorListResponse"
+examples:
+sensors:
+summary: Sensor list response
+value:
+data:
+- id: sensor_12345
+name: Walk-in Cooler Temperature
+type: temperature
+status: online
+gatewayId: gateway_67890
+lastReadingAt: "2026-06-16T14:25:00Z"
+- id: sensor_23456
+name: Storage Room Humidity
+type: humidity
+status: online
+gatewayId: gateway_67890
+lastReadingAt: "2026-06-16T14:24:00Z"
+pagination:
+limit: 25
+nextCursor: null
+"401":
+$ref: "#/components/responses/Unauthorized"
+"429":
+$ref: "#/components/responses/RateLimitExceeded"
+"500":
+$ref: "#/components/responses/ServerError"
+
+/sensors/{sensorId}:
+get:
+tags:
+- Sensors
+summary: Get a sensor
+description: Returns details for one sensor.
+operationId: getSensor
+parameters:
+- name: sensorId
+in: path
+required: true
+description: Unique ID of the sensor.
+schema:
+type: string
+example: sensor_12345
+responses:
+"200":
+description: Sensor details.
+content:
+application/json:
+schema:
+$ref: "#/components/schemas/Sensor"
+examples:
+sensor:
+summary: Sensor detail response
+value:
+id: sensor_12345
+name: Walk-in Cooler Temperature
+type: temperature
+status: online
+gatewayId: gateway_67890
+location: Main Kitchen
+lastReading:
+timestamp: "2026-06-16T14:25:00Z"
+temperatureF: 72.4
+batteryPercent: 88
+signalStrength: good
+"401":
+$ref: "#/components/responses/Unauthorized"
+"404":
+$ref: "#/components/responses/NotFound"
+"429":
+$ref: "#/components/responses/RateLimitExceeded"
+"500":
+$ref: "#/components/responses/ServerError"
+
+/sensors/{sensorId}/readings:
+get:
+tags:
+- Readings
+summary: Get sensor readings
+description: Returns recent readings for one sensor.
+operationId: getSensorReadings
+parameters:
+- name: sensorId
+in: path
+required: true
+description: Unique ID of the sensor.
+schema:
+type: string
+example: sensor_12345
+- name: startTime
+in: query
+required: false
+description: Start time for the reading range. Use ISO 8601 format.
+schema:
+type: string
+format: date-time
+example: "2026-06-16T14:00:00Z"
+- name: endTime
+in: query
+required: false
+description: End time for the reading range. Use ISO 8601 format.
+schema:
+type: string
+format: date-time
+example: "2026-06-16T15:00:00Z"
+- name: limit
+in: query
+required: false
+description: Number of readings to return. Maximum is 500.
+schema:
+type: integer
+default: 100
+minimum: 1
+maximum: 500
+- name: cursor
+in: query
+required: false
+description: Cursor used to request the next page of results.
+schema:
+type: string
+responses:
+"200":
+description: Sensor readings.
+content:
+application/json:
+schema:
+$ref: "#/components/schemas/SensorReadingResponse"
+examples:
+readings:
+summary: Sensor readings response
+value:
+sensorId: sensor_12345
+data:
+- timestamp: "2026-06-16T14:25:00Z"
+temperatureF: 72.4
+batteryPercent: 88
+signalStrength: good
+- timestamp: "2026-06-16T14:20:00Z"
+temperatureF: 72.1
+batteryPercent: 88
+signalStrength: good
+pagination:
+limit: 100
+nextCursor: null
+"401":
+$ref: "#/components/responses/Unauthorized"
+"404":
+$ref: "#/components/responses/NotFound"
+"429":
+$ref: "#/components/responses/RateLimitExceeded"
+"500":
+$ref: "#/components/responses/ServerError"
+
+/gateways/{gatewayId}/status:
+get:
+tags:
+- Gateways
+summary: Get gateway status
+description: Returns the current status for one gateway.
+operationId: getGatewayStatus
+parameters:
+- name: gatewayId
+in: path
+required: true
+description: Unique ID of the gateway.
+schema:
+type: string
+example: gateway_67890
+responses:
+"200":
+description: Gateway status.
+content:
+application/json:
+schema:
+$ref: "#/components/schemas/GatewayStatus"
+examples:
+gatewayStatus:
+summary: Gateway status response
+value:
+gatewayId: gateway_67890
+name: Main Kitchen Gateway
+status: online
+lastConnectedAt: "2026-06-16T14:27:00Z"
+signalStrength: excellent
+connectedSensors: 12
+"401":
+$ref: "#/components/responses/Unauthorized"
+"404":
+$ref: "#/components/responses/NotFound"
+"429":
+$ref: "#/components/responses/RateLimitExceeded"
+"500":
+$ref: "#/components/responses/ServerError"
+
+/alerts:
+get:
+tags:
+- Alerts
+summary: List alert rules
+description: Returns alert rules in the account.
+operationId: listAlerts
+parameters:
+- name: status
+in: query
+required: false
+description: Filters alert rules by status.
+schema:
+type: string
+enum:
+- enabled
+- disabled
+- name: sensorId
+in: query
+required: false
+description: Filters alert rules by sensor ID.
+schema:
+type: string
+example: sensor_12345
+- name: limit
+in: query
+required: false
+description: Number of results to return. Maximum is 100.
+schema:
+type: integer
+default: 25
+minimum: 1
+maximum: 100
+- name: cursor
+in: query
+required: false
+description: Cursor used to request the next page of results.
+schema:
+type: string
+responses:
+"200":
+description: A list of alert rules.
+content:
+application/json:
+schema:
+$ref: "#/components/schemas/AlertListResponse"
+examples:
+alerts:
+summary: Alert list response
+value:
+data:
+- id: alert_98765
+sensorId: sensor_12345
+name: High temperature alert
+status: enabled
+condition:
+field: temperatureF
+operator: greater_than
+value: 80
+notificationEmail: facilities@example.com
+createdAt: "2026-06-16T14:30:00Z"
+pagination:
+limit: 25
+nextCursor: null
+"401":
+$ref: "#/components/responses/Unauthorized"
+"429":
+$ref: "#/components/responses/RateLimitExceeded"
+"500":
+$ref: "#/components/responses/ServerError"
+
+post:
+  tags:
+    - Alerts
+  summary: Create an alert rule
+  description: Creates a new alert rule for a sensor.
+  operationId: createAlert
+  requestBody:
+    required: true
+    description: Alert rule details.
+    content:
+      application/json:
+        schema:
+          $ref: "#/components/schemas/CreateAlertRequest"
+        examples:
+          highTemperatureAlert:
+            summary: High temperature alert
+            value:
+              sensorId: sensor_12345
+              name: High temperature alert
+              condition:
+                field: temperatureF
+                operator: greater_than
+                value: 80
+              notificationEmail: facilities@example.com
+  responses:
+    "201":
+      description: Alert rule created.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Alert"
+          examples:
+            createdAlert:
+              summary: Created alert response
+              value:
+                id: alert_98765
+                sensorId: sensor_12345
+                name: High temperature alert
+                status: enabled
+                condition:
+                  field: temperatureF
+                  operator: greater_than
+                  value: 80
+                notificationEmail: facilities@example.com
+                createdAt: "2026-06-16T14:30:00Z"
+    "400":
+      $ref: "#/components/responses/InvalidRequest"
+    "401":
+      $ref: "#/components/responses/Unauthorized"
+    "403":
+      $ref: "#/components/responses/Forbidden"
+    "422":
+      $ref: "#/components/responses/ValidationFailed"
+    "429":
+      $ref: "#/components/responses/RateLimitExceeded"
+    "500":
+      $ref: "#/components/responses/ServerError"
+
+/alerts/{alertId}:
+patch:
+tags:
+- Alerts
+summary: Update an alert rule
+description: Updates one or more fields on an existing alert rule.
+operationId: updateAlert
+parameters:
+- name: alertId
+in: path
+required: true
+description: Unique ID of the alert rule.
+schema:
+type: string
+example: alert_98765
+requestBody:
+required: true
+description: Alert rule fields to update.
+content:
+application/json:
+schema:
+$ref: "#/components/schemas/UpdateAlertRequest"
+examples:
+disableAlert:
+summary: Disable an alert rule
+value:
+status: disabled
+responses:
+"200":
+description: Alert rule updated.
+content:
+application/json:
+schema:
+$ref: "#/components/schemas/Alert"
+examples:
+updatedAlert:
+summary: Updated alert response
+value:
+id: alert_98765
+sensorId: sensor_12345
+name: High temperature alert
+status: disabled
+condition:
+field: temperatureF
+operator: greater_than
+value: 80
+notificationEmail: facilities@example.com
+updatedAt: "2026-06-16T15:10:00Z"
+"400":
+$ref: "#/components/responses/InvalidRequest"
+"401":
+$ref: "#/components/responses/Unauthorized"
+"403":
+$ref: "#/components/responses/Forbidden"
+"404":
+$ref: "#/components/responses/NotFound"
+"422":
+$ref: "#/components/responses/ValidationFailed"
+"429":
+$ref: "#/components/responses/RateLimitExceeded"
+"500":
+$ref: "#/components/responses/ServerError"
+
+delete:
+  tags:
+    - Alerts
+  summary: Delete an alert rule
+  description: Deletes an existing alert rule.
+  operationId: deleteAlert
+  parameters:
+    - name: alertId
+      in: path
+      required: true
+      description: Unique ID of the alert rule.
+      schema:
+        type: string
+        example: alert_98765
+  responses:
+    "204":
+      description: Alert rule deleted. The response body is empty.
+    "401":
+      $ref: "#/components/responses/Unauthorized"
+    "403":
+      $ref: "#/components/responses/Forbidden"
+    "404":
+      $ref: "#/components/responses/NotFound"
+    "429":
+      $ref: "#/components/responses/RateLimitExceeded"
+    "500":
+      $ref: "#/components/responses/ServerError"
+
+components:
+securitySchemes:
+bearerAuth:
+type: http
+scheme: bearer
+bearerFormat: API key
+description: >
+Include the API key in the Authorization header using the Bearer format.
+Example: Authorization: Bearer YOUR_API_KEY
+
+schemas:
+Sensor:
+type: object
+required:
+- id
+- name
+- type
+- status
+- gatewayId
+properties:
+id:
+type: string
+description: Unique ID of the sensor.
+example: sensor_12345
+name:
+type: string
+description: Display name of the sensor.
+example: Walk-in Cooler Temperature
+type:
+type: string
+description: Type of sensor.
+enum:
+- temperature
+- humidity
+- contact
+- motion
+example: temperature
+status:
+type: string
+description: Current sensor status.
+enum:
+- online
+- offline
+- inactive
+example: online
+gatewayId:
+type: string
+description: Unique ID of the gateway connected to the sensor.
+example: gateway_67890
+location:
+type: string
+description: User-defined sensor location.
+example: Main Kitchen
+lastReadingAt:
+type:
+- string
+- "null"
+format: date-time
+description: Time of the latest sensor reading.
+example: "2026-06-16T14:25:00Z"
+lastReading:
+$ref: "#/components/schemas/SensorReading"
+
+SensorListResponse:
+  type: object
+  required:
+    - data
+    - pagination
+  properties:
+    data:
+      type: array
+      items:
+        $ref: "#/components/schemas/Sensor"
+    pagination:
+      $ref: "#/components/schemas/Pagination"
+
+SensorReading:
+  type: object
+  required:
+    - timestamp
+    - batteryPercent
+    - signalStrength
+  properties:
+    timestamp:
+      type: string
+      format: date-time
+      description: Time when the reading was recorded.
+      example: "2026-06-16T14:25:00Z"
+    temperatureF:
+      type: number
+      format: float
+      description: Temperature reading in degrees Fahrenheit.
+      example: 72.4
+    humidityPercent:
+      type: number
+      format: float
+      description: Humidity reading as a percentage.
+      example: 41.2
+    batteryPercent:
+      type: integer
+      description: Sensor battery level as a percentage.
+      minimum: 0
+      maximum: 100
+      example: 88
+    signalStrength:
+      type: string
+      description: Sensor signal strength.
+      enum:
+        - poor
+        - fair
+        - good
+        - excellent
+      example: good
+
+SensorReadingResponse:
+  type: object
+  required:
+    - sensorId
+    - data
+    - pagination
+  properties:
+    sensorId:
+      type: string
+      description: Unique ID of the sensor.
+      example: sensor_12345
+    data:
+      type: array
+      items:
+        $ref: "#/components/schemas/SensorReading"
+    pagination:
+      $ref: "#/components/schemas/Pagination"
+
+GatewayStatus:
+  type: object
+  required:
+    - gatewayId
+    - name
+    - status
+    - lastConnectedAt
+    - signalStrength
+    - connectedSensors
+  properties:
+    gatewayId:
+      type: string
+      description: Unique ID of the gateway.
+      example: gateway_67890
+    name:
+      type: string
+      description: Display name of the gateway.
+      example: Main Kitchen Gateway
+    status:
+      type: string
+      description: Current gateway status.
+      enum:
+        - online
+        - offline
+        - inactive
+      example: online
+    lastConnectedAt:
+      type: string
+      format: date-time
+      description: Last time the gateway connected to SensorHub Cloud.
+      example: "2026-06-16T14:27:00Z"
+    signalStrength:
+      type: string
+      description: Gateway signal strength.
+      enum:
+        - poor
+        - fair
+        - good
+        - excellent
+      example: excellent
+    connectedSensors:
+      type: integer
+      description: Number of sensors currently connected to the gateway.
+      minimum: 0
+      example: 12
+
+Alert:
+  type: object
+  required:
+    - id
+    - sensorId
+    - name
+    - status
+    - condition
+    - notificationEmail
+  properties:
+    id:
+      type: string
+      description: Unique ID of the alert rule.
+      example: alert_98765
+    sensorId:
+      type: string
+      description: Unique ID of the sensor used by the alert rule.
+      example: sensor_12345
+    name:
+      type: string
+      description: Display name of the alert rule.
+      example: High temperature alert
+    status:
+      type: string
+      description: Current alert rule status.
+      enum:
+        - enabled
+        - disabled
+      example: enabled
+    condition:
+      $ref: "#/components/schemas/AlertCondition"
+    notificationEmail:
+      type: string
+      format: email
+      description: Email address that receives the alert.
+      example: facilities@example.com
+    createdAt:
+      type: string
+      format: date-time
+      description: Time when the alert rule was created.
+      example: "2026-06-16T14:30:00Z"
+    updatedAt:
+      type: string
+      format: date-time
+      description: Time when the alert rule was last updated.
+      example: "2026-06-16T15:10:00Z"
+
+AlertListResponse:
+  type: object
+  required:
+    - data
+    - pagination
+  properties:
+    data:
+      type: array
+      items:
+        $ref: "#/components/schemas/Alert"
+    pagination:
+      $ref: "#/components/schemas/Pagination"
+
+AlertCondition:
+  type: object
+  required:
+    - field
+    - operator
+    - value
+  properties:
+    field:
+      type: string
+      description: Sensor field checked by the alert rule.
+      enum:
+        - temperatureF
+        - humidityPercent
+        - batteryPercent
+      example: temperatureF
+    operator:
+      type: string
+      description: Comparison used by the alert rule.
+      enum:
+        - greater_than
+        - less_than
+        - equals
+        - not_equals
+      example: greater_than
+    value:
+      type: number
+      description: Value that triggers the alert rule.
+      example: 80
+
+CreateAlertRequest:
+  type: object
+  required:
+    - sensorId
+    - name
+    - condition
+    - notificationEmail
+  properties:
+    sensorId:
+      type: string
+      description: Unique ID of the sensor used by the alert rule.
+      example: sensor_12345
+    name:
+      type: string
+      description: Display name of the alert rule.
+      example: High temperature alert
+    condition:
+      $ref: "#/components/schemas/AlertCondition"
+    notificationEmail:
+      type: string
+      format: email
+      description: Email address that receives the alert.
+      example: facilities@example.com
+
+UpdateAlertRequest:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Display name of the alert rule.
+      example: High temperature alert
+    status:
+      type: string
+      description: Current alert rule status.
+      enum:
+        - enabled
+        - disabled
+      example: disabled
+    condition:
+      $ref: "#/components/schemas/AlertCondition"
+    notificationEmail:
+      type: string
+      format: email
+      description: Email address that receives the alert.
+      example: facilities@example.com
+
+Pagination:
+  type: object
+  required:
+    - limit
+    - nextCursor
+  properties:
+    limit:
+      type: integer
+      description: Number of results returned.
+      example: 25
+    nextCursor:
+      type:
+        - string
+        - "null"
+      description: Cursor used to request the next page of results. Null means there are no more results.
+      example: null
+
+ErrorResponse:
+  type: object
+  required:
+    - error
+  properties:
+    error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Short error code.
+          example: invalid_request
+        message:
+          type: string
+          description: Plain-language error message.
+          example: The request is missing a required field.
+        fields:
+          type: array
+          description: Field-level validation errors.
+          items:
+            type: object
+            required:
+              - field
+              - message
+            properties:
+              field:
+                type: string
+                example: notificationEmail
+              message:
+                type: string
+                example: Enter a valid email address.
+
+responses:
+InvalidRequest:
+description: The request is missing required data or has invalid values.
+content:
+application/json:
+schema:
+$ref: "#/components/schemas/ErrorResponse"
+example:
+error:
+code: invalid_request
+message: The request is missing the required sensorId field.
+
+Unauthorized:
+  description: The API key is missing, invalid, expired, or disabled.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorResponse"
+      example:
+        error:
+          code: unauthorized
+          message: Authentication is required. Include a valid API key in the Authorization header.
+
+Forbidden:
+  description: The API key is valid, but it does not have permission for this action.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorResponse"
+      example:
+        error:
+          code: forbidden
+          message: This API key does not have permission to complete the requested action.
+
+NotFound:
+  description: The requested resource was not found.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorResponse"
+      example:
+        error:
+          code: not_found
+          message: The requested resource was not found.
+
+ValidationFailed:
+  description: One or more fields failed validation.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorResponse"
+      example:
+        error:
+          code: validation_failed
+          message: One or more fields failed validation.
+          fields:
+            - field: notificationEmail
+              message: Enter a valid email address.
+
+RateLimitExceeded:
+  description: Too many requests were sent in a short time.
+  headers:
+    Retry-After:
+      description: Number of seconds to wait before sending another request.
+      schema:
+        type: integer
+        example: 60
+    X-RateLimit-Limit:
+      description: Maximum number of requests allowed in the current time window.
+      schema:
+        type: integer
+        example: 600
+    X-RateLimit-Remaining:
+      description: Number of requests left in the current time window.
+      schema:
+        type: integer
+        example: 0
+    X-RateLimit-Reset:
+      description: Unix time when the rate limit resets.
+      schema:
+        type: integer
+        example: 1718548800
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorResponse"
+      example:
+        error:
+          code: rate_limit_exceeded
+          message: Too many requests. Try again later.
+
+ServerError:
+  description: The server could not complete the request.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorResponse"
+      example:
+        error:
+          code: server_error
+          message: The server could not complete the request. Try again later.
