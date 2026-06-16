@@ -1,0 +1,13 @@
+{
+"method": "GET",
+"url": "https://api.sensorhub.example.com/v1/sensors/sensor_12345/readings",
+"headers": {
+"Authorization": "Bearer YOUR_API_KEY",
+"Accept": "application/json"
+},
+"queryParameters": {
+"startTime": "2026-06-16T14:00:00Z",
+"endTime": "2026-06-16T15:00:00Z",
+"limit": 100
+}
+}
