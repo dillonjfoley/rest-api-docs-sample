@@ -1,0 +1,815 @@
+{
+"info": {
+"name": "SensorHub Cloud API",
+"description": "Sample Postman collection for the fictional SensorHub Cloud API technical writing portfolio project.",
+"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+},
+"auth": {
+"type": "bearer",
+"bearer": [
+{
+"key": "token",
+"value": "{{apiKey}}",
+"type": "string"
+}
+]
+},
+"variable": [
+{
+"key": "baseUrl",
+"value": "https://api.sensorhub.example.com/v1",
+"type": "string"
+},
+{
+"key": "apiKey",
+"value": "YOUR_API_KEY",
+"type": "string"
+},
+{
+"key": "sensorId",
+"value": "sensor_12345",
+"type": "string"
+},
+{
+"key": "gatewayId",
+"value": "gateway_67890",
+"type": "string"
+},
+{
+"key": "alertId",
+"value": "alert_98765",
+"type": "string"
+}
+],
+"item": [
+{
+"name": "Sensors",
+"item": [
+{
+"name": "List sensors",
+"request": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/sensors?status=online&type=temperature&limit=25",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"sensors"
+],
+"query": [
+{
+"key": "status",
+"value": "online",
+"description": "Optional. Filters sensors by status."
+},
+{
+"key": "type",
+"value": "temperature",
+"description": "Optional. Filters sensors by type."
+},
+{
+"key": "limit",
+"value": "25",
+"description": "Optional. Number of results to return."
+}
+]
+},
+"description": "Returns a list of sensors in the account."
+},
+"response": [
+{
+"name": "200 OK - Sensor list",
+"originalRequest": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/sensors?status=online&type=temperature&limit=25",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"sensors"
+],
+"query": [
+{
+"key": "status",
+"value": "online"
+},
+{
+"key": "type",
+"value": "temperature"
+},
+{
+"key": "limit",
+"value": "25"
+}
+]
+}
+},
+"status": "OK",
+"code": 200,
+"_postman_previewlanguage": "json",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+},
+{
+"key": "X-RateLimit-Limit",
+"value": "600"
+},
+{
+"key": "X-RateLimit-Remaining",
+"value": "452"
+}
+],
+"body": "{\n "data": [\n {\n "id": "sensor_12345",\n "name": "Walk-in Cooler Temperature",\n "type": "temperature",\n "status": "online",\n "gatewayId": "gateway_67890",\n "lastReadingAt": "2026-06-16T14:25:00Z"\n },\n {\n "id": "sensor_23456",\n "name": "Freezer Temperature",\n "type": "temperature",\n "status": "online",\n "gatewayId": "gateway_67890",\n "lastReadingAt": "2026-06-16T14:24:00Z"\n }\n ],\n "pagination": {\n "limit": 25,\n "nextCursor": null\n }\n}"
+}
+]
+},
+{
+"name": "Get a sensor",
+"request": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/sensors/{{sensorId}}",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"sensors",
+"{{sensorId}}"
+]
+},
+"description": "Returns details for one sensor."
+},
+"response": [
+{
+"name": "200 OK - Sensor details",
+"originalRequest": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/sensors/{{sensorId}}",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"sensors",
+"{{sensorId}}"
+]
+}
+},
+"status": "OK",
+"code": 200,
+"_postman_previewlanguage": "json",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": "{\n "id": "sensor_12345",\n "name": "Walk-in Cooler Temperature",\n "type": "temperature",\n "status": "online",\n "gatewayId": "gateway_67890",\n "location": "Main Kitchen",\n "lastReading": {\n "timestamp": "2026-06-16T14:25:00Z",\n "temperatureF": 72.4,\n "batteryPercent": 88,\n "signalStrength": "good"\n }\n}"
+}
+]
+}
+]
+},
+{
+"name": "Readings",
+"item": [
+{
+"name": "Get sensor readings",
+"request": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/sensors/{{sensorId}}/readings?startTime=2026-06-16T14:00:00Z&endTime=2026-06-16T15:00:00Z&limit=100",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"sensors",
+"{{sensorId}}",
+"readings"
+],
+"query": [
+{
+"key": "startTime",
+"value": "2026-06-16T14:00:00Z",
+"description": "Optional. Start time for the reading range."
+},
+{
+"key": "endTime",
+"value": "2026-06-16T15:00:00Z",
+"description": "Optional. End time for the reading range."
+},
+{
+"key": "limit",
+"value": "100",
+"description": "Optional. Number of readings to return."
+}
+]
+},
+"description": "Returns recent readings for one sensor."
+},
+"response": [
+{
+"name": "200 OK - Sensor readings",
+"originalRequest": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/sensors/{{sensorId}}/readings?startTime=2026-06-16T14:00:00Z&endTime=2026-06-16T15:00:00Z&limit=100",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"sensors",
+"{{sensorId}}",
+"readings"
+],
+"query": [
+{
+"key": "startTime",
+"value": "2026-06-16T14:00:00Z"
+},
+{
+"key": "endTime",
+"value": "2026-06-16T15:00:00Z"
+},
+{
+"key": "limit",
+"value": "100"
+}
+]
+}
+},
+"status": "OK",
+"code": 200,
+"_postman_previewlanguage": "json",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": "{\n "sensorId": "sensor_12345",\n "data": [\n {\n "timestamp": "2026-06-16T14:25:00Z",\n "temperatureF": 72.4,\n "batteryPercent": 88,\n "signalStrength": "good"\n },\n {\n "timestamp": "2026-06-16T14:20:00Z",\n "temperatureF": 72.1,\n "batteryPercent": 88,\n "signalStrength": "good"\n }\n ],\n "pagination": {\n "limit": 100,\n "nextCursor": null\n }\n}"
+}
+]
+}
+]
+},
+{
+"name": "Gateways",
+"item": [
+{
+"name": "Get gateway status",
+"request": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/gateways/{{gatewayId}}/status",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"gateways",
+"{{gatewayId}}",
+"status"
+]
+},
+"description": "Returns the current status for one gateway."
+},
+"response": [
+{
+"name": "200 OK - Gateway status",
+"originalRequest": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/gateways/{{gatewayId}}/status",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"gateways",
+"{{gatewayId}}",
+"status"
+]
+}
+},
+"status": "OK",
+"code": 200,
+"_postman_previewlanguage": "json",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": "{\n "gatewayId": "gateway_67890",\n "name": "Main Kitchen Gateway",\n "status": "online",\n "lastConnectedAt": "2026-06-16T14:27:00Z",\n "signalStrength": "excellent",\n "connectedSensors": 12\n}"
+}
+]
+}
+]
+},
+{
+"name": "Alerts",
+"item": [
+{
+"name": "List alert rules",
+"request": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/alerts?status=enabled&limit=25",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"alerts"
+],
+"query": [
+{
+"key": "status",
+"value": "enabled",
+"description": "Optional. Filters alert rules by status."
+},
+{
+"key": "limit",
+"value": "25",
+"description": "Optional. Number of results to return."
+}
+]
+},
+"description": "Returns alert rules in the account."
+},
+"response": [
+{
+"name": "200 OK - Alert list",
+"originalRequest": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/alerts?status=enabled&limit=25",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"alerts"
+],
+"query": [
+{
+"key": "status",
+"value": "enabled"
+},
+{
+"key": "limit",
+"value": "25"
+}
+]
+}
+},
+"status": "OK",
+"code": 200,
+"_postman_previewlanguage": "json",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": "{\n "data": [\n {\n "id": "alert_98765",\n "sensorId": "sensor_12345",\n "name": "High temperature alert",\n "status": "enabled",\n "condition": {\n "field": "temperatureF",\n "operator": "greater_than",\n "value": 80\n },\n "notificationEmail": "facilities@example.com",\n "createdAt": "2026-06-16T14:30:00Z"\n }\n ],\n "pagination": {\n "limit": 25,\n "nextCursor": null\n }\n}"
+}
+]
+},
+{
+"name": "Create an alert rule",
+"request": {
+"method": "POST",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json",
+"type": "text"
+},
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\n "sensorId": "{{sensorId}}",\n "name": "High temperature alert",\n "condition": {\n "field": "temperatureF",\n "operator": "greater_than",\n "value": 80\n },\n "notificationEmail": "facilities@example.com"\n}",
+"options": {
+"raw": {
+"language": "json"
+}
+}
+},
+"url": {
+"raw": "{{baseUrl}}/alerts",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"alerts"
+]
+},
+"description": "Creates a new alert rule for a sensor."
+},
+"response": [
+{
+"name": "201 Created - Alert created",
+"originalRequest": {
+"method": "POST",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json",
+"type": "text"
+},
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\n "sensorId": "{{sensorId}}",\n "name": "High temperature alert",\n "condition": {\n "field": "temperatureF",\n "operator": "greater_than",\n "value": 80\n },\n "notificationEmail": "facilities@example.com"\n}",
+"options": {
+"raw": {
+"language": "json"
+}
+}
+},
+"url": {
+"raw": "{{baseUrl}}/alerts",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"alerts"
+]
+}
+},
+"status": "Created",
+"code": 201,
+"_postman_previewlanguage": "json",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": "{\n "id": "alert_98765",\n "sensorId": "sensor_12345",\n "name": "High temperature alert",\n "status": "enabled",\n "condition": {\n "field": "temperatureF",\n "operator": "greater_than",\n "value": 80\n },\n "notificationEmail": "facilities@example.com",\n "createdAt": "2026-06-16T14:30:00Z"\n}"
+}
+]
+},
+{
+"name": "Update an alert rule",
+"request": {
+"method": "PATCH",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json",
+"type": "text"
+},
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\n "status": "disabled"\n}",
+"options": {
+"raw": {
+"language": "json"
+}
+}
+},
+"url": {
+"raw": "{{baseUrl}}/alerts/{{alertId}}",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"alerts",
+"{{alertId}}"
+]
+},
+"description": "Updates one or more fields on an existing alert rule."
+},
+"response": [
+{
+"name": "200 OK - Alert updated",
+"originalRequest": {
+"method": "PATCH",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json",
+"type": "text"
+},
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\n "status": "disabled"\n}",
+"options": {
+"raw": {
+"language": "json"
+}
+}
+},
+"url": {
+"raw": "{{baseUrl}}/alerts/{{alertId}}",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"alerts",
+"{{alertId}}"
+]
+}
+},
+"status": "OK",
+"code": 200,
+"_postman_previewlanguage": "json",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": "{\n "id": "alert_98765",\n "sensorId": "sensor_12345",\n "name": "High temperature alert",\n "status": "disabled",\n "condition": {\n "field": "temperatureF",\n "operator": "greater_than",\n "value": 80\n },\n "notificationEmail": "facilities@example.com",\n "updatedAt": "2026-06-16T15:10:00Z"\n}"
+}
+]
+},
+{
+"name": "Delete an alert rule",
+"request": {
+"method": "DELETE",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/alerts/{{alertId}}",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"alerts",
+"{{alertId}}"
+]
+},
+"description": "Deletes an existing alert rule."
+},
+"response": [
+{
+"name": "204 No Content - Alert deleted",
+"originalRequest": {
+"method": "DELETE",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/alerts/{{alertId}}",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"alerts",
+"{{alertId}}"
+]
+}
+},
+"status": "No Content",
+"code": 204,
+"header": [],
+"body": ""
+}
+]
+}
+]
+},
+{
+"name": "Errors",
+"item": [
+{
+"name": "Example 401 Unauthorized",
+"request": {
+"method": "GET",
+"auth": {
+"type": "noauth"
+},
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/sensors",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"sensors"
+]
+},
+"description": "Example request that shows the response returned when authentication is missing."
+},
+"response": [
+{
+"name": "401 Unauthorized",
+"originalRequest": {
+"method": "GET",
+"auth": {
+"type": "noauth"
+},
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/sensors",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"sensors"
+]
+}
+},
+"status": "Unauthorized",
+"code": 401,
+"_postman_previewlanguage": "json",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": "{\n "error": {\n "code": "unauthorized",\n "message": "Authentication is required. Include a valid API key in the Authorization header."\n }\n}"
+}
+]
+},
+{
+"name": "Example 429 Rate Limit Exceeded",
+"request": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/sensors",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"sensors"
+]
+},
+"description": "Example request that shows the response returned when the API key exceeds the rate limit."
+},
+"response": [
+{
+"name": "429 Too Many Requests",
+"originalRequest": {
+"method": "GET",
+"header": [
+{
+"key": "Accept",
+"value": "application/json",
+"type": "text"
+}
+],
+"url": {
+"raw": "{{baseUrl}}/sensors",
+"host": [
+"{{baseUrl}}"
+],
+"path": [
+"sensors"
+]
+}
+},
+"status": "Too Many Requests",
+"code": 429,
+"_postman_previewlanguage": "json",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+},
+{
+"key": "Retry-After",
+"value": "60"
+},
+{
+"key": "X-RateLimit-Limit",
+"value": "600"
+},
+{
+"key": "X-RateLimit-Remaining",
+"value": "0"
+}
+],
+"body": "{\n "error": {\n "code": "rate_limit_exceeded",\n "message": "Too many requests. Try again in 60 seconds."\n }\n}"
+}
+]
+}
+]
+}
+]
+}
