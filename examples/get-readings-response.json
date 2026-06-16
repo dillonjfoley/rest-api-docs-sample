@@ -1,0 +1,27 @@
+{
+"sensorId": "sensor_12345",
+"data": [
+{
+"timestamp": "2026-06-16T14:25:00Z",
+"temperatureF": 72.4,
+"batteryPercent": 88,
+"signalStrength": "good"
+},
+{
+"timestamp": "2026-06-16T14:20:00Z",
+"temperatureF": 72.1,
+"batteryPercent": 88,
+"signalStrength": "good"
+},
+{
+"timestamp": "2026-06-16T14:15:00Z",
+"temperatureF": 71.9,
+"batteryPercent": 88,
+"signalStrength": "good"
+}
+],
+"pagination": {
+"limit": 100,
+"nextCursor": null
+}
+}
